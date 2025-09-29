@@ -1,0 +1,58 @@
+// Scriptable Ultra-Optimized Proportions Calculator (WebView version)
+
+// Your HTML as a string
+let html = `<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{height:100%;margin:0;background:#000;color:#fff;font-family:-apple-system,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;}
+.fractions-container{display:flex;align-items:center;margin-bottom:20px;}
+.fraction{display:flex;flex-direction:column;margin:0 20px;}
+input{width:60px;font-size:24px;text-align:center;margin:5px;border:none;border-radius:5px;background:#111;color:#fff;}
+input.calculated{color:#0f0;font-weight:bold;}
+.btn{font:20px sans-serif;padding:10px 20px;margin:20px 5px 0 0;border:none;border-radius:10px;background:#000;color:#fff;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;}
+</style>
+</head>
+<body>
+<div class="fractions-container" id="fractions"></div>
+<div>
+  <button class="btn" data-action="calc">Calculate</button>
+  <button class="btn" data-action="clear">Clear</button>
+</div>
+<script>
+const f=['A','B','C','D'],inputs=[],frac=document.getElementById('fractions');
+['frac1','frac2'].forEach((id,i)=>{
+  let c=document.createElement('div');c.className='fraction';
+  for(let j=0;j<2;j++){
+    let idx=i*2+j,inp=document.createElement('input');
+    inp.type='number';inp.inputMode='decimal';inp.placeholder=f[idx];inp.dataset.ph=f[idx];
+    inp.onfocus=()=>inp.placeholder='';inp.onblur=()=>{if(!inp.value)inp.placeholder=inp.dataset.ph};
+    c.appendChild(inp);inputs.push(inp);
+  }
+  frac.appendChild(c);
+});
+let eq=document.createElement('div');eq.innerText='=';eq.style.cssText='display:flex;align-items:center;margin:0 5px;font-size:24px;';
+frac.insertBefore(eq,frac.children[1]);
+document.querySelectorAll('.btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    b.style.backgroundColor='#010101';
+    setTimeout(()=>b.style.backgroundColor='#000',1);
+    if(b.dataset.action==='calc'){
+      let v=inputs.map(i=>i.value?+i.value:null),e=v.findIndex(x=>x===null);
+      if(e!==-1&&v.filter(x=>x!==null).length>=3){
+        v[e]=e===0?v[1]*v[2]/v[3]:e===1?v[0]*v[3]/v[2]:e===2?v[0]*v[3]/v[1]:v[1]*v[2]/v[0];
+        inputs[e].value=v[e].toFixed(2);
+        inputs.forEach((i,idx)=>i.classList.toggle('calculated',idx===e));
+      }
+    } else inputs.forEach((i,idx)=>{i.value='';i.placeholder=i.dataset.ph;i.classList.remove('calculated');});
+  });
+});
+</script>
+</body>
+</html>`;
+
+// Load HTML in Scriptable WebView
+let wv = new WebView();
+await wv.loadHTML(html);
+await wv.present();
